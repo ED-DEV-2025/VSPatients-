@@ -113,9 +113,8 @@ async function handleSend() {
   input.value = '';
   turnCount += 1;
 
-  let promptMessages = [{ role: 'system', content: systemPrompt }, ...messageHistory];
   console.log('sending to OpenAI. systemPrompt:', systemPrompt);
-  const reply = await callOpenAI(promptMessages);
+  const reply = await callOpenAI(messageHistory);
   appendMessage('assistant', reply);
   messageHistory.push({ role: 'assistant', content: reply });
 
@@ -145,6 +144,7 @@ function startSimulation() {
   systemPrompt = buildPrompt();
   console.log('built systemPrompt:', systemPrompt);
   messageHistory = [];
+  messageHistory.push({ role: 'system', content: systemPrompt });
   score = 0;
   turnCount = 0;
   document.getElementById('score-display').innerText = '0';
