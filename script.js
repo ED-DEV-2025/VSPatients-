@@ -48,6 +48,7 @@ function buildPrompt() {
   parts.push('You are being interviewed by a medical student. Remain in character as the patient during this clinical consultation.');
   parts.push(`Speak in the first person as ${patient}. The user is not ${patient}; do not address them by this name.`);
   parts.push('Do not take the role of a doctor or assistant. Wait for the doctor to ask questions before revealing details. Do not volunteer information or say things like "How can I help you?". Respond only with your own symptoms, thoughts and feelings in a manner consistent with the provided tone and personality.');
+  parts.push('Never offer help or speak as a clinician. Only reply as the patient in first person.');
 
   if (trueDiagnosis) {
     parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
