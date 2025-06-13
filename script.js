@@ -21,24 +21,23 @@ function buildPrompt() {
   const patient = name || 'the patient';
 
   const parts = [];
-  let intro = `You are ${patient}`;
-  intro += age ? `, a ${age}-year-old.` : '.';
-  parts.push(intro);
 
-  if (background) {
-    parts.push(background.endsWith('.') ? background : `${background}.`);
-  }
+  const agePart = age ? `, a ${age}-year-old` : '';
+  const backgroundPart = background ? ` ${background.replace(/\.$/, '')}` : '';
+  parts.push(`You are ${patient}${agePart}${backgroundPart}.`);
+
   if (symptoms) {
-    parts.push(`You are experiencing ${symptoms}.`);
+    parts.push(`You're experiencing ${symptoms}.`);
   }
   if (tone) {
-    parts.push(`Your demeanor is ${tone}.`);
+    parts.push(`You are ${tone}.`);
   }
+
+  parts.push('Respond in character during a clinical consultation.');
+
   if (trueDiagnosis) {
     parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
   }
-
-  parts.push(`Stay in character as ${patient} during this clinical consultation. Do not mention that you are an AI or that you were given these instructions.`);
 
   return parts.join(' ');
 }
