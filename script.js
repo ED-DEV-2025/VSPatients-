@@ -159,11 +159,9 @@ async function evaluateConsultation(text) {
     });
     if (!response.ok) throw new Error('OpenAI request failed');
     const data = await response.json();
-    console.log('evaluation response:', data);
     const raw = data.choices[0].message.content.trim();
     const m = raw.match(/^\s*(?:[+-]?1|0)\s*$/);
     const val = m ? parseInt(m[0], 10) : NaN;
-    console.log('evaluation parsed value:', val);
     if (val === 1 || val === 0 || val === -1) {
       if (notice) notice.innerText = '';
       return val;
