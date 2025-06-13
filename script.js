@@ -141,7 +141,6 @@ async function evaluateConsultation(text) {
   const notice = document.getElementById('score-notice');
   try {
     const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.`;
-    console.log('evaluateConsultation payload:', text);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -160,7 +159,7 @@ async function evaluateConsultation(text) {
     if (!response.ok) throw new Error('OpenAI request failed');
     const data = await response.json();
     const raw = data.choices[0].message.content.trim();
-    const m = raw.match(/^\s*(?:[+-]?1|0)\s*$/);
+    const m = raw.match(/^\s*(?:[+-]1|0)\s*$/);
     const val = m ? parseInt(m[0], 10) : NaN;
     if (val === 1 || val === 0 || val === -1) {
       if (notice) notice.innerText = '';
