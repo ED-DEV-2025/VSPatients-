@@ -160,8 +160,8 @@ async function evaluateConsultation(text) {
     const raw = data.choices[0].message.content.trim();
     console.log('evaluation raw GPT response:', raw);
     console.log('evaluation response:', data);
-    const m = raw.match(/[-+]?1|0/);
-    const val = m ? parseInt(m[0], 10) : NaN;
+    const m = raw.match(/^([+-]?1|0)$/);
+    const val = m ? parseInt(m[1], 10) : NaN;
     console.log('evaluation parsed value:', val);
     if (val === 1 || val === 0 || val === -1) {
       if (notice) notice.innerText = '';
