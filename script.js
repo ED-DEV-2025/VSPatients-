@@ -155,8 +155,10 @@ function startSimulation() {
   appendMessage('system', 'Simulation started.');
 }
 
-document.getElementById('start-btn').addEventListener('click', startSimulation);
-document.getElementById('send-btn').addEventListener('click', handleSend);
-document.getElementById('chat-input').addEventListener('keypress', e => {
-  if (e.key === 'Enter') handleSend();
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('start-btn').addEventListener('click', startSimulation);
+  document.getElementById('send-btn').addEventListener('click', handleSend);
+  document.getElementById('chat-input').addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleSend();
+  });
 });
