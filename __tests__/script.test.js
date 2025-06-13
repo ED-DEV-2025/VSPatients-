@@ -33,6 +33,7 @@ describe('buildPrompt', () => {
     expect(prompt).toContain("You're experiencing cough.");
     expect(prompt).toContain('You are friendly.');
     expect(prompt).toContain('Your true diagnosis is pneumonia');
+    expect(prompt).toMatch(/realistic emotional boundaries/i);
   });
 
   test('builds free text prompt', () => {
@@ -42,6 +43,7 @@ describe('buildPrompt', () => {
     expect(prompt).toMatch(/Stay in character as the patient/);
     expect(prompt).toMatch(/Wait for the doctor to ask questions/);
     expect(prompt).toContain('You are at the clinic for a check-up.');
+    expect(prompt).toMatch(/realistic emotional boundaries/i);
   });
 });
 
