@@ -1,0 +1,18 @@
+{
+  "name": "vspatients-",
+  "version": "1.0.0",
+  "description": "This project provides a simple web interface for building virtual standardized patient (VSP) scenarios. Fill out the form in `index.html` to define patient details and then chat with the simulated patient powered by OpenAI's API via `script.js`.",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+  ,
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jsdom": "^22.0.0"
+  }
+}
