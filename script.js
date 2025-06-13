@@ -18,7 +18,29 @@ function buildPrompt() {
     return free;
   }
 
-  return `You are playing the role of a patient in a medical consultation. Respond as ${name || 'the patient'}, age ${age}. Background: ${background}. Symptoms: ${symptoms}. Tone: ${tone}. Stay in character and keep responses short.`;
+  const patient = name || 'the patient';
+
+  const parts = [];
+  let intro = `You are ${patient}`;
+  intro += age ? `, a ${age}-year-old.` : '.';
+  parts.push(intro);
+
+  if (background) {
+    parts.push(background.endsWith('.') ? background : `${background}.`);
+  }
+  if (symptoms) {
+    parts.push(`You are experiencing ${symptoms}.`);
+  }
+  if (tone) {
+    parts.push(`Your demeanor is ${tone}.`);
+  }
+  if (trueDiagnosis) {
+    parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
+  }
+
+  parts.push(`Stay in character as ${patient} during this clinical consultation. Do not mention that you are an AI or that you were given these instructions.`);
+
+  return parts.join(' ');
 }
 
 async function callOpenAI(messages) {
