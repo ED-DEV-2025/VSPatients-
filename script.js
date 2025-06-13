@@ -140,7 +140,7 @@ async function evaluateConsultation(text) {
   const key = window.apiKey || apiKey;
   const notice = document.getElementById('score-notice');
   try {
-    const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.`;
+    const prompt = `You are evaluating the quality of communication in a medical consultation. Reply ONLY with +1, 0 or -1. Use +1 for empathetic, open or patient centred utterances, 0 for neutral statements, and -1 for rude, dismissive or closed communication. Example good messages: "How has this affected your day to day?", "I'm sorry to hear that, tell me more". Example poor messages: "Just answer the question", "That's not my problem".`;
     console.log('evaluateConsultation payload:', text);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
