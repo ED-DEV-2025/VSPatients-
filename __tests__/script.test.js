@@ -58,12 +58,12 @@ describe('evaluateConsultation', () => {
     global.window.apiKey = 'test';
   });
 
-  test('parses numeric response', async () => {
+  test('parses JSON response with defaults', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ choices: [{ message: { content: '1' } }] })
+      json: async () => ({ choices: [{ message: { content: '{"open_questions":1,"empathy":0}' } }] })
     });
     const val = await evaluateConsultation('hi');
-    expect(val).toBe(1);
+    expect(val).toEqual({ open_questions: 1, empathy: 0, inappropriate_advice: 0 });
   });
 });
