@@ -5,6 +5,133 @@ let messageHistory = [];
 let score = 0;
 let consultationScore = 50;
 let turnCount = 0;
+let currentSessionId = null;
+
+function getCaseData() {
+  return {
+    name: document.getElementById('patient-name').value.trim(),
+    age: document.getElementById('patient-age').value.trim(),
+    occupation: document.getElementById('patient-occupation').value.trim(),
+    background: document.getElementById('patient-background').value.trim(),
+    symptoms: document.getElementById('patient-symptoms').value.trim(),
+    tone: document.getElementById('patient-tone').value.trim(),
+    trueDiagnosis: document.getElementById('patient-diagnosis').value.trim(),
+    free: document.getElementById('patient-free').value.trim()
+  };
+}
+
+function fillCaseInputs(data) {
+  if (!data) return;
+  document.getElementById('patient-name').value = data.name || '';
+  document.getElementById('patient-age').value = data.age || '';
+  document.getElementById('patient-occupation').value = data.occupation || '';
+  document.getElementById('patient-background').value = data.background || '';
+  document.getElementById('patient-symptoms').value = data.symptoms || '';
+  document.getElementById('patient-tone').value = data.tone || '';
+  document.getElementById('patient-diagnosis').value = data.trueDiagnosis || '';
+  document.getElementById('patient-free').value = data.free || '';
+}
+
+function loadSessions() {
+  try {
+    return JSON.parse(localStorage.getItem('vsp_sessions') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveSessions(sessions) {
+  localStorage.setItem('vsp_sessions', JSON.stringify(sessions));
+}
+
+function updateSessionSelect() {
+  const select = document.getElementById('session-select');
+  if (!select) return;
+  const sessions = loadSessions();
+  select.innerHTML = '<option value="">-- Select --</option>';
+  sessions.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    const label = s.case.name || 'Unnamed';
+    const date = new Date(s.lastModified || Date.now()).toLocaleString();
+    opt.textContent = `${label} - ${date}${s.completed ? ' (done)' : ''}`;
+    select.appendChild(opt);
+  });
+}
+
+function saveCurrentSession(completed = false) {
+  if (!currentSessionId) return;
+  const sessions = loadSessions();
+  const idx = sessions.findIndex(s => s.id === currentSessionId);
+  if (idx === -1) return;
+  sessions[idx] = {
+    ...sessions[idx],
+    case: getCaseData(),
+    history: messageHistory,
+    score,
+    consultationScore,
+    turnCount,
+    completed: completed || sessions[idx].completed,
+    lastModified: Date.now()
+  };
+  saveSessions(sessions);
+  updateSessionSelect();
+}
+
+function createNewSession(caseData) {
+  const sessions = loadSessions();
+  const id = Date.now().toString();
+  sessions.push({
+    id,
+    case: caseData,
+    history: [],
+    score: 0,
+    consultationScore: 50,
+    turnCount: 0,
+    completed: false,
+    lastModified: Date.now()
+  });
+  saveSessions(sessions);
+  currentSessionId = id;
+  updateSessionSelect();
+}
+
+function getSessionById(id) {
+  return loadSessions().find(s => s.id === id);
+}
+
+function renderHistory(history) {
+  const container = document.getElementById('chat-window');
+  container.innerHTML = '';
+  history.forEach(msg => {
+    if (msg.role === 'system') return;
+    const sender = msg.role === 'assistant' ? 'assistant' : msg.role;
+    appendMessage(sender, msg.content);
+  });
+}
+
+function loadSession(id) {
+  const session = getSessionById(id);
+  if (!session) return;
+  currentSessionId = session.id;
+  fillCaseInputs(session.case);
+  messageHistory = session.history || [];
+  score = session.score || 0;
+  consultationScore = session.consultationScore || 50;
+  turnCount = session.turnCount || 0;
+  if (messageHistory.length > 0) {
+    document.getElementById('chat-section').style.display = 'block';
+    document.getElementById('info-panels').style.display = 'grid';
+    document.getElementById('case-builder').style.display = 'none';
+    renderHistory(messageHistory);
+    updateScoreBar();
+  } else {
+    document.getElementById('case-builder').style.display = 'block';
+    document.getElementById('chat-section').style.display = 'none';
+    document.getElementById('info-panels').style.display = 'none';
+  }
+  updateSessionSelect();
+}
 
 function buildPrompt() {
   const name = document.getElementById('patient-name').value.trim();
@@ -193,6 +320,7 @@ async function handleSend() {
   if (!text) return;
   appendMessage('user', text);
   messageHistory.push({ role: 'user', content: text });
+  saveCurrentSession();
   const delta = await evaluateConsultation(text);
   const before = consultationScore;
   consultationScore = Math.min(100, Math.max(0, consultationScore + delta * 10));
@@ -206,6 +334,7 @@ async function handleSend() {
   if (reply) {
     appendMessage('assistant', reply);
     messageHistory.push({ role: 'assistant', content: reply });
+    saveCurrentSession();
   }
 
   if (turnCount % 5 === 0) {
@@ -217,6 +346,7 @@ async function handleSend() {
         document.getElementById('chat-input').disabled = true;
         document.getElementById('send-btn').disabled = true;
         appendMessage('system', 'Case completed.');
+        saveCurrentSession(true);
       } else {
         document.getElementById('diagnosis-display').innerText = `Not quite. Similarity: ${(sim*100).toFixed(0)}%`;
       }
@@ -230,6 +360,19 @@ async function startSimulation() {
     alert('Please enter your OpenAI API key.');
     return;
   }
+  if (!currentSessionId) {
+    createNewSession(getCaseData());
+  }
+
+  if (messageHistory.length > 0) {
+    document.getElementById('case-builder').style.display = 'none';
+    document.getElementById('chat-section').style.display = 'block';
+    document.getElementById('info-panels').style.display = 'grid';
+    renderHistory(messageHistory);
+    updateScoreBar();
+    return;
+  }
+
   systemPrompt = buildPrompt();
   console.log('built systemPrompt:', systemPrompt);
   messageHistory = [];
@@ -251,6 +394,7 @@ async function startSimulation() {
     appendMessage('assistant', firstReply);
     messageHistory.push({ role: 'assistant', content: firstReply });
   }
+  saveCurrentSession();
 }
 
 async function generateRandomCase() {
@@ -317,6 +461,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('chat-input').addEventListener('keypress', e => {
     if (e.key === 'Enter') handleSend();
   });
+
+  updateSessionSelect();
+  const loadBtn = document.getElementById('load-session-btn');
+  if (loadBtn) {
+    loadBtn.addEventListener('click', () => {
+      const id = document.getElementById('session-select').value;
+      if (id) loadSession(id);
+    });
+  }
 
   const modal = document.getElementById('api-modal');
   const continueBtn = document.getElementById('api-continue');
