@@ -127,7 +127,7 @@ function updateScoreBar() {
   document.getElementById('score-display').innerText = Math.round(consultationScore);
   const notice = document.getElementById('score-notice');
   if (notice) notice.innerText = '';
-  console.log(`score bar width: ${bar.style.width} color: ${color}`);
+  console.log(`score bar width: ${bar.style.width} color: ${bar.style.backgroundColor}`);
 }
 
 async function evaluateConsultation(text) {
