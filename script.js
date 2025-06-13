@@ -184,14 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const keyInput = document.getElementById('api-key-input');
 
   continueBtn.addEventListener('click', () => {
+    console.log('api-continue handler start');
     const key = keyInput.value.trim();
+    console.log('api key entered:', key);
     if (!key) {
       alert('Please enter your OpenAI API key.');
       return;
     }
     apiKey = key;
     window.apiKey = key;
+    console.log('apiKey set on window');
     modal.style.display = 'none';
+    console.log('api modal hidden');
     document.getElementById('app-container').style.display = 'block';
   });
 });
