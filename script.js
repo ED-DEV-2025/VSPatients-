@@ -7,12 +7,19 @@ let turnCount = 0;
 
 function buildPrompt() {
   const name = document.getElementById('patient-name').value.trim();
+  console.log('name:', name);
   const age = document.getElementById('patient-age').value.trim();
+  console.log('age:', age);
   const background = document.getElementById('patient-background').value.trim();
+  console.log('background:', background);
   const symptoms = document.getElementById('patient-symptoms').value.trim();
+  console.log('symptoms:', symptoms);
   const tone = document.getElementById('patient-tone').value.trim();
+  console.log('tone:', tone);
   const free = document.getElementById('patient-free').value.trim();
+  console.log('free text:', free);
   trueDiagnosis = document.getElementById('patient-diagnosis').value.trim();
+  console.log('diagnosis:', trueDiagnosis);
 
   if (free) {
     return free;
@@ -107,6 +114,7 @@ async function handleSend() {
   turnCount += 1;
 
   let promptMessages = [{ role: 'system', content: systemPrompt }, ...messageHistory];
+  console.log('sending to OpenAI. systemPrompt:', systemPrompt);
   const reply = await callOpenAI(promptMessages);
   appendMessage('assistant', reply);
   messageHistory.push({ role: 'assistant', content: reply });
@@ -128,12 +136,14 @@ async function handleSend() {
 }
 
 function startSimulation() {
+  console.log('startSimulation called');
   apiKey = document.getElementById('openai-key').value.trim();
   if (!apiKey) {
     alert('Please enter your OpenAI API key.');
     return;
   }
   systemPrompt = buildPrompt();
+  console.log('built systemPrompt:', systemPrompt);
   messageHistory = [];
   score = 0;
   turnCount = 0;
