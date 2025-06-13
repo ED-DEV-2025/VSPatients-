@@ -139,7 +139,6 @@ async function handleSend() {
 
 function startSimulation() {
   console.log('startSimulation called');
-  apiKey = document.getElementById('openai-key').value.trim();
   if (!apiKey) {
     alert('Please enter your OpenAI API key.');
     return;
@@ -163,5 +162,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('send-btn').addEventListener('click', handleSend);
   document.getElementById('chat-input').addEventListener('keypress', e => {
     if (e.key === 'Enter') handleSend();
+  });
+
+  const modal = document.getElementById('api-modal');
+  const continueBtn = document.getElementById('api-continue');
+  const keyInput = document.getElementById('api-key-input');
+
+  continueBtn.addEventListener('click', () => {
+    const key = keyInput.value.trim();
+    if (!key) {
+      alert('Please enter your OpenAI API key.');
+      return;
+    }
+    apiKey = key;
+    window.apiKey = key;
+    modal.style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
   });
 });
