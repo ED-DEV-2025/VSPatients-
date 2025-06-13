@@ -5,9 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adaptive VSP Builder</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 p-4">
-  <div class="max-w-4xl mx-auto space-y-6">
+  <!-- API Key Modal -->
+  <div id="api-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded shadow-md space-y-4 w-11/12 sm:w-96">
+      <p class="text-center font-semibold">Enter your OpenAI API Key to begin</p>
+      <input id="api-key-input" type="password" class="w-full border rounded p-2" />
+      <button id="api-continue" class="w-full bg-blue-600 text-white py-2 rounded">Continue</button>
+    </div>
+  </div>
+
+  <div id="app-container" class="max-w-4xl mx-auto space-y-6" style="display:none;">
     <h1 class="text-2xl font-bold">Adaptive VSP Builder</h1>
 
     <!-- Case Builder -->
@@ -43,11 +53,9 @@
           <textarea id="patient-free" class="w-full border rounded p-2" placeholder="Use natural language to describe the patient case"></textarea>
         </div>
       </div>
-      <div class="mt-4 flex items-center space-x-2">
-        <input id="openai-key" type="password" placeholder="OpenAI API Key" class="border rounded p-2 flex-grow" />
-        <button id="start-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Start Simulation</button>
+      <div class="mt-4 flex items-center">
+        <button id="start-btn" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Start Simulation</button>
       </div>
-      <p class="text-xs text-red-600 mt-2">Do not publish your API key publicly.</p>
     </section>
 
     <!-- Chat Window -->
