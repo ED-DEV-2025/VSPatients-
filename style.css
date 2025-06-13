@@ -7,3 +7,17 @@
   background: rgba(0, 0, 0, 0.5);
   z-index: 50;
 }
+
+#score-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #f3f3f3;
+  border-radius: 4px;
+  overflow: hidden;
+}
+#score-bar {
+  height: 100%;
+  width: 0%;
+  background: red;
+  transition: width 0.4s ease, background 0.4s ease;
+}

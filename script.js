@@ -3,6 +3,7 @@ let systemPrompt = '';
 let trueDiagnosis = '';
 let messageHistory = [];
 let score = 0;
+let consultationScore = 0;
 let turnCount = 0;
 
 function buildPrompt() {
@@ -112,6 +113,60 @@ function updateScore(text) {
   document.getElementById('score-display').innerText = score;
 }
 
+function updateScoreBar() {
+  const bar = document.getElementById('score-bar');
+  bar.style.width = `${consultationScore}%`;
+  let color = 'red';
+  if (consultationScore >= 75) {
+    color = 'green';
+  } else if (consultationScore >= 50) {
+    color = 'yellow';
+  } else if (consultationScore >= 25) {
+    color = 'orange';
+  }
+  bar.style.background = color;
+  document.getElementById('score-display').innerText = Math.round(consultationScore);
+  const notice = document.getElementById('score-notice');
+  if (notice) notice.innerText = '';
+}
+
+async function evaluateConsultation(text) {
+  const key = window.apiKey || apiKey;
+  const notice = document.getElementById('score-notice');
+  try {
+    const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.`;
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: prompt },
+          { role: 'user', content: text }
+        ],
+        temperature: 0
+      })
+    });
+    if (!response.ok) throw new Error('OpenAI request failed');
+    const data = await response.json();
+    const raw = data.choices[0].message.content.trim();
+    const m = raw.match(/[-+]?1|0/);
+    const val = m ? parseInt(m[0], 10) : NaN;
+    if (val === 1 || val === 0 || val === -1) {
+      if (notice) notice.innerText = '';
+      return val;
+    }
+    throw new Error('Invalid response: ' + raw);
+  } catch (err) {
+    console.error('evaluateConsultation error', err);
+    if (notice) notice.innerText = 'Score unavailable';
+    return 0;
+  }
+}
+
 function similarity(a, b) {
   const aSet = new Set(a.toLowerCase().split(/\W+/));
   const bSet = new Set(b.toLowerCase().split(/\W+/));
@@ -125,7 +180,9 @@ async function handleSend() {
   if (!text) return;
   appendMessage('user', text);
   messageHistory.push({ role: 'user', content: text });
-  updateScore(text);
+  const delta = await evaluateConsultation(text);
+  consultationScore = Math.min(100, Math.max(0, consultationScore + delta * 10));
+  updateScoreBar();
   input.value = '';
   turnCount += 1;
 
@@ -163,8 +220,10 @@ function startSimulation() {
   messageHistory = [];
   messageHistory.push({ role: 'system', content: systemPrompt });
   score = 0;
+  consultationScore = 0;
   turnCount = 0;
   document.getElementById('score-display').innerText = '0';
+  updateScoreBar();
   document.getElementById('diagnosis-display').innerText = '';
   document.getElementById('case-builder').style.display = 'none';
   document.getElementById('chat-section').style.display = 'block';
