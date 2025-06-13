@@ -172,8 +172,9 @@ function startSimulation() {
   appendMessage('system', 'Simulation started.');
 }
 
-async function generateCase() {
-  const key = window.apiKey;
+async function generateRandomCase() {
+  console.log('generateRandomCase clicked');
+  const key = window.apiKey || apiKey;
   if (!key) {
     alert('Please enter your OpenAI API key.');
     return;
@@ -215,7 +216,7 @@ async function generateCase() {
     document.getElementById('patient-diagnosis').value = info['true diagnosis'] || '';
     document.getElementById('patient-free').value = info['case description'] || '';
   } catch (err) {
-    console.error(err);
+    console.error('Case generation failed', err);
     alert('Failed to generate case.');
   } finally {
     btn.textContent = original;
@@ -227,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-btn').addEventListener('click', startSimulation);
   document.getElementById('send-btn').addEventListener('click', handleSend);
   const genBtn = document.getElementById('generate-btn');
-  if (genBtn) genBtn.addEventListener('click', generateCase);
+  if (genBtn) genBtn.addEventListener('click', generateRandomCase);
   document.getElementById('chat-input').addEventListener('keypress', e => {
     if (e.key === 'Enter') handleSend();
   });
