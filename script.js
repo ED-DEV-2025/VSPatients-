@@ -53,20 +53,33 @@ function buildPrompt() {
 }
 
 async function callOpenAI(messages) {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: 'gpt-3.5-turbo',
-      messages,
-      temperature: 0.7
-    })
-  });
-  const data = await response.json();
-  return data.choices[0].message.content.trim();
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      console.error('OpenAI API error', response.status, response.statusText);
+      alert('Failed to get a response from OpenAI. Please try again later.');
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (err) {
+    console.error('Fetch failed', err);
+    alert('Unable to reach OpenAI. Check your connection and try again.');
+    return null;
+  }
 }
 
 function appendMessage(sender, text) {
@@ -118,8 +131,10 @@ async function handleSend() {
 
   console.log('sending to OpenAI. systemPrompt:', systemPrompt);
   const reply = await callOpenAI(messageHistory);
-  appendMessage('assistant', reply);
-  messageHistory.push({ role: 'assistant', content: reply });
+  if (reply) {
+    appendMessage('assistant', reply);
+    messageHistory.push({ role: 'assistant', content: reply });
+  }
 
   if (turnCount % 5 === 0) {
     const diag = prompt("What's your current diagnosis?");
