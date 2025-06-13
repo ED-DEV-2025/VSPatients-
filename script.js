@@ -172,9 +172,62 @@ function startSimulation() {
   appendMessage('system', 'Simulation started.');
 }
 
+async function generateCase() {
+  const key = window.apiKey;
+  if (!key) {
+    alert('Please enter your OpenAI API key.');
+    return;
+  }
+
+  const btn = document.getElementById('generate-btn');
+  const original = btn.textContent;
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+
+  const prompt = `Generate a fictional rural Australian patient for a medical education simulation. Return the following fields in JSON format:\n- name\n- age\n- background (brief)\n- symptoms (brief)\n- tone (e.g., rude, anxious, stoic)\n- personality (descriptors)\n- true diagnosis (1 line)\n- case description (1–2 sentences)`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) throw new Error('OpenAI request failed');
+
+    const data = await response.json();
+    let text = data.choices[0].message.content.trim();
+    text = text.replace(/```json|```/g, '').trim();
+    const info = JSON.parse(text);
+
+    document.getElementById('patient-name').value = info.name || '';
+    document.getElementById('patient-age').value = info.age || '';
+    document.getElementById('patient-background').value = info.background || '';
+    document.getElementById('patient-symptoms').value = info.symptoms || '';
+    document.getElementById('patient-tone').value = [info.tone, info.personality].filter(Boolean).join(' ');
+    document.getElementById('patient-diagnosis').value = info['true diagnosis'] || '';
+    document.getElementById('patient-free').value = info['case description'] || '';
+  } catch (err) {
+    console.error(err);
+    alert('Failed to generate case.');
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-btn').addEventListener('click', startSimulation);
   document.getElementById('send-btn').addEventListener('click', handleSend);
+  const genBtn = document.getElementById('generate-btn');
+  if (genBtn) genBtn.addEventListener('click', generateCase);
   document.getElementById('chat-input').addEventListener('keypress', e => {
     if (e.key === 'Enter') handleSend();
   });
