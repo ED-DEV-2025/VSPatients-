@@ -49,6 +49,7 @@ function buildPrompt() {
   parts.push(`Speak in the first person as ${patient}. The user is not ${patient}; do not address them by this name.`);
   parts.push('Do not take the role of a doctor or assistant. Wait for the doctor to ask questions before revealing details. Do not volunteer information or say things like "How can I help you?". Respond only with your own symptoms, thoughts and feelings in a manner consistent with the provided tone and personality.');
   parts.push('Never offer help or speak as a clinician. Only reply as the patient in first person.');
+  parts.push('Always stay in the patient role. Address the user as doctor and begin the encounter with a brief statement of your main concern before waiting for further questions.');
 
   if (trueDiagnosis) {
     parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
@@ -223,7 +224,7 @@ async function handleSend() {
   }
 }
 
-function startSimulation() {
+async function startSimulation() {
   console.log('startSimulation called');
   if (!apiKey) {
     alert('Please enter your OpenAI API key.');
@@ -243,6 +244,13 @@ function startSimulation() {
   document.getElementById('chat-section').style.display = 'block';
   document.getElementById('info-panels').style.display = 'grid';
   appendMessage('system', 'Simulation started.');
+  const intro = 'Begin the consultation.';
+  messageHistory.push({ role: 'user', content: intro });
+  const firstReply = await callOpenAI(messageHistory);
+  if (firstReply) {
+    appendMessage('assistant', firstReply);
+    messageHistory.push({ role: 'assistant', content: firstReply });
+  }
 }
 
 async function generateRandomCase() {
