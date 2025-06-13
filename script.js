@@ -19,27 +19,28 @@ function buildPrompt() {
   }
 
   const patient = name || 'the patient';
-  let promptParts = [];
-  promptParts.push(`You are ${patient}`);
-  if (age) {
-    promptParts[promptParts.length - 1] += `, a ${age}-year-old.`;
-  } else {
-    promptParts[promptParts.length - 1] += '.';
-  }
+
+  const parts = [];
+  let intro = `You are ${patient}`;
+  intro += age ? `, a ${age}-year-old.` : '.';
+  parts.push(intro);
+
   if (background) {
-    promptParts.push(background.endsWith('.') ? background : `${background}.`);
+    parts.push(background.endsWith('.') ? background : `${background}.`);
   }
   if (symptoms) {
-    promptParts.push(`You've been experiencing ${symptoms}.`);
+    parts.push(`You are experiencing ${symptoms}.`);
   }
   if (tone) {
-    promptParts.push(`You are ${tone}.`);
+    parts.push(`Your demeanor is ${tone}.`);
   }
   if (trueDiagnosis) {
-    promptParts.push(`Your true diagnosis is ${trueDiagnosis}, but do not reveal this unless explicitly asked.`);
+    parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
   }
-  promptParts.push(`Respond in character as ${patient} during a clinical consultation.`);
-  return promptParts.join(' ');
+
+  parts.push(`Stay in character as ${patient} during this clinical consultation. Do not mention that you are an AI or that you were given these instructions.`);
+
+  return parts.join(' ');
 }
 
 async function callOpenAI(messages) {
