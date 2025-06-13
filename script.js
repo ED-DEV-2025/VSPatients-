@@ -92,7 +92,10 @@ function appendMessage(sender, text) {
   const container = document.getElementById('chat-window');
   const div = document.createElement('div');
   div.className = sender === 'user' ? 'text-right mb-2' : 'text-left mb-2';
-  div.innerHTML = `<span class="px-2 py-1 rounded ${sender === 'user' ? 'bg-blue-200' : 'bg-gray-200'} inline-block">${text}</span>`;
+  const span = document.createElement('span');
+  span.className = `px-2 py-1 rounded ${sender === 'user' ? 'bg-blue-200' : 'bg-gray-200'} inline-block`;
+  span.textContent = text;
+  div.appendChild(span);
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
