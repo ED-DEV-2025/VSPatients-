@@ -11,6 +11,8 @@ function buildPrompt() {
   console.log('name:', name);
   const age = document.getElementById('patient-age').value.trim();
   console.log('age:', age);
+  const occupation = document.getElementById('patient-occupation').value.trim();
+  console.log('occupation:', occupation);
   const background = document.getElementById('patient-background').value.trim();
   console.log('background:', background);
   const symptoms = document.getElementById('patient-symptoms').value.trim();
@@ -32,8 +34,9 @@ function buildPrompt() {
   const parts = [];
 
   const agePart = age ? `, a ${age}-year-old` : '';
+  const occupationPart = occupation ? ` who is a ${occupation.replace(/\.$/, '')}` : '';
   const backgroundPart = background ? ` ${background.replace(/\.$/, '')}` : '';
-  parts.push(`You are ${patient}${agePart}${backgroundPart}.`);
+  parts.push(`You are ${patient}${agePart}${occupationPart}${backgroundPart}.`);
 
   if (symptoms) {
     parts.push(`You're experiencing ${symptoms}.`);
@@ -251,7 +254,7 @@ async function generateRandomCase() {
   btn.textContent = 'Generating...';
   btn.disabled = true;
 
-  const prompt = `Generate a fictional patient for medical simulation. Return a JSON object with: name, age (between 2–95), background, symptoms, tone, personality, true diagnosis, case description. Ensure personality and age vary each time. Avoid repeating traits like 'stoic'. Use diversity in age, culture, gender, and presentation.`;
+  const prompt = `Generate a fictional patient for medical simulation. Return a JSON object with: name, age (between 2–95), occupation, background, symptoms, tone, personality, true diagnosis, case description. Ensure a broad age distribution across the full range and vary occupations in each case. Avoid repeating traits like 'stoic'. Use diversity in age, culture, gender, and presentation.`;
   console.log('case generation prompt:', prompt);
 
   try {
@@ -279,6 +282,7 @@ async function generateRandomCase() {
 
     document.getElementById('patient-name').value = info.name || '';
     document.getElementById('patient-age').value = info.age || '';
+    document.getElementById('patient-occupation').value = info.occupation || '';
     document.getElementById('patient-background').value = info.background || '';
     document.getElementById('patient-symptoms').value = info.symptoms || '';
     document.getElementById('patient-tone').value = [info.tone, info.personality].filter(Boolean).join(' ');
