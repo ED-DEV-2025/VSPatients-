@@ -17,7 +17,7 @@
 }
 #score-bar {
   height: 100%;
-  width: 0%;
-  background: red;
+  width: 50%;
+  background: linear-gradient(90deg, red, yellow, green);
   transition: width 0.4s ease, background 0.4s ease;
 }

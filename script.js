@@ -3,7 +3,7 @@ let systemPrompt = '';
 let trueDiagnosis = '';
 let messageHistory = [];
 let score = 0;
-let consultationScore = 0;
+let consultationScore = 50;
 let turnCount = 0;
 
 function buildPrompt() {
@@ -44,7 +44,7 @@ function buildPrompt() {
 
   parts.push('You are being interviewed by a medical student. Remain in character as the patient during this clinical consultation.');
   parts.push(`Speak in the first person as ${patient}. The user is not ${patient}; do not address them by this name.`);
-  parts.push('Do not take the role of a doctor or assistant, and do not ask the user questions. Respond only with your own symptoms, thoughts and feelings.');
+  parts.push('Do not take the role of a doctor or assistant. Wait for the doctor to ask questions before revealing details. Do not volunteer information or say things like "How can I help you?". Respond only with your own symptoms, thoughts and feelings in a manner consistent with the provided tone and personality.');
 
   if (trueDiagnosis) {
     parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
@@ -55,6 +55,7 @@ function buildPrompt() {
 
 async function callOpenAI(messages) {
   try {
+    console.log('callOpenAI payload:', messages);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -75,6 +76,7 @@ async function callOpenAI(messages) {
     }
 
     const data = await response.json();
+    console.log('OpenAI response:', data);
     return data.choices[0].message.content.trim();
   } catch (err) {
     console.error('Fetch failed', err);
@@ -115,6 +117,7 @@ function updateScore(text) {
 
 function updateScoreBar() {
   const bar = document.getElementById('score-bar');
+  console.log('updateScoreBar - consultationScore:', consultationScore);
   bar.style.width = `${consultationScore}%`;
   let color = 'red';
   if (consultationScore >= 75) {
@@ -135,6 +138,7 @@ async function evaluateConsultation(text) {
   const notice = document.getElementById('score-notice');
   try {
     const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.`;
+    console.log('evaluateConsultation payload:', text);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -152,9 +156,11 @@ async function evaluateConsultation(text) {
     });
     if (!response.ok) throw new Error('OpenAI request failed');
     const data = await response.json();
+    console.log('evaluation response:', data);
     const raw = data.choices[0].message.content.trim();
     const m = raw.match(/[-+]?1|0/);
     const val = m ? parseInt(m[0], 10) : NaN;
+    console.log('evaluation parsed value:', val);
     if (val === 1 || val === 0 || val === -1) {
       if (notice) notice.innerText = '';
       return val;
@@ -182,6 +188,7 @@ async function handleSend() {
   messageHistory.push({ role: 'user', content: text });
   const delta = await evaluateConsultation(text);
   consultationScore = Math.min(100, Math.max(0, consultationScore + delta * 10));
+  console.log('message delta:', delta, 'new consultationScore:', consultationScore);
   updateScoreBar();
   input.value = '';
   turnCount += 1;
@@ -220,9 +227,9 @@ function startSimulation() {
   messageHistory = [];
   messageHistory.push({ role: 'system', content: systemPrompt });
   score = 0;
-  consultationScore = 0;
+  consultationScore = 50;
   turnCount = 0;
-  document.getElementById('score-display').innerText = '0';
+  document.getElementById('score-display').innerText = '50';
   updateScoreBar();
   document.getElementById('diagnosis-display').innerText = '';
   document.getElementById('case-builder').style.display = 'none';
@@ -244,7 +251,8 @@ async function generateRandomCase() {
   btn.textContent = 'Generating...';
   btn.disabled = true;
 
-  const prompt = `Generate a fictional rural Australian patient for a medical education simulation. Return the following fields in JSON format:\n- name\n- age\n- background (brief)\n- symptoms (brief)\n- tone (e.g., rude, anxious, stoic)\n- personality (descriptors)\n- true diagnosis (1 line)\n- case description (1–2 sentences)`;
+  const prompt = `Generate a fictional patient for medical simulation. Return a JSON object with: name, age (between 2–95), background, symptoms, tone, personality, true diagnosis, case description. Ensure personality and age vary each time. Avoid repeating traits like 'stoic'. Use diversity in age, culture, gender, and presentation.`;
+  console.log('case generation prompt:', prompt);
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -264,8 +272,10 @@ async function generateRandomCase() {
 
     const data = await response.json();
     let text = data.choices[0].message.content.trim();
+    console.log('case generation raw text:', text);
     text = text.replace(/```json|```/g, '').trim();
     const info = JSON.parse(text);
+    console.log('case generation parsed:', info);
 
     document.getElementById('patient-name').value = info.name || '';
     document.getElementById('patient-age').value = info.age || '';
