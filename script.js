@@ -266,10 +266,7 @@ async function evaluateConsultation(text) {
   const key = window.apiKey || apiKey;
   const notice = document.getElementById('score-notice');
   try {
-  const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.
-Example good: "How long have you had the pain?"
-Example neutral: "OK."
-Example poor: "Take this medicine."`;
+    const prompt = `You are grading a trainee's message in a medical consultation. Return only a JSON object with numeric fields "open_questions", "empathy", and "inappropriate_advice". Each value should be 1 if present in the message, otherwise 0.`;
     const payload = {
       model: 'gpt-3.5-turbo',
       messages: [
@@ -289,21 +286,23 @@ Example poor: "Take this medicine."`;
     });
     if (!response.ok) throw new Error('OpenAI request failed');
     const data = await response.json();
-    const raw = data.choices[0].message.content.trim();
+    let raw = data.choices[0].message.content.trim();
     console.log('evaluation raw GPT response:', raw);
     console.log('evaluation response:', data);
-    const m = raw.match(/^([+-]?1|0)$/);
-    const val = m ? parseInt(m[1], 10) : NaN;
-    console.log('evaluation parsed value:', val);
-    if (val === 1 || val === 0 || val === -1) {
-      if (notice) notice.innerText = '';
-      return val;
-    }
-    throw new Error('Invalid response: ' + raw);
+    raw = raw.replace(/```json|```/g, '').trim();
+    let obj = {};
+    try { obj = JSON.parse(raw); } catch (e) { console.warn('JSON parse failed, using empty object'); obj = {}; }
+    const result = {
+      open_questions: typeof obj.open_questions === 'number' ? obj.open_questions : 0,
+      empathy: typeof obj.empathy === 'number' ? obj.empathy : 0,
+      inappropriate_advice: typeof obj.inappropriate_advice === 'number' ? obj.inappropriate_advice : 0
+    };
+    if (notice) notice.innerText = '';
+    return result;
   } catch (err) {
     console.error('evaluateConsultation error', err);
     if (notice) notice.innerText = 'Score unavailable';
-    return 0;
+    return { open_questions: 0, empathy: 0, inappropriate_advice: 0 };
   }
 }
 
@@ -321,9 +320,10 @@ async function handleSend() {
   appendMessage('user', text);
   messageHistory.push({ role: 'user', content: text });
   saveCurrentSession();
-  const delta = await evaluateConsultation(text);
+  const evalResult = await evaluateConsultation(text);
+  const delta = evalResult.open_questions * 5 + evalResult.empathy * 5 - evalResult.inappropriate_advice * 10;
   const before = consultationScore;
-  consultationScore = Math.min(100, Math.max(0, consultationScore + delta * 10));
+  consultationScore = Math.min(100, Math.max(0, consultationScore + delta));
   console.log(`consultation score before: ${before} after applying delta ${delta}: ${consultationScore}`);
   updateScoreBar();
   input.value = '';
