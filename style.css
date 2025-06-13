@@ -18,6 +18,6 @@
 #score-bar {
   height: 100%;
   width: 50%;
-  background: linear-gradient(90deg, red, yellow, green);
-  transition: width 0.4s ease, background 0.4s ease;
+  background: red;
+  transition: width 0.4s ease, background-color 0.4s ease;
 }
