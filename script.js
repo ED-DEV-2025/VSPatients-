@@ -22,7 +22,8 @@ function buildPrompt() {
   console.log('diagnosis:', trueDiagnosis);
 
   if (free) {
-    return free;
+    const patientName = name || 'the patient';
+    return `${free} The user is a medical student interviewing you, ${patientName}. Stay in character as the patient and speak in first person. Do not provide medical advice, do not ask the user questions, and do not address them as ${patientName}.`;
   }
 
   const patient = name || 'the patient';
@@ -40,7 +41,9 @@ function buildPrompt() {
     parts.push(`You are ${tone}.`);
   }
 
-  parts.push('Respond in character during a clinical consultation.');
+  parts.push('You are being interviewed by a medical student. Remain in character as the patient during this clinical consultation.');
+  parts.push(`Speak in the first person as ${patient}. The user is not ${patient}; do not address them by this name.`);
+  parts.push('Do not take the role of a doctor or assistant, and do not ask the user questions. Respond only with your own symptoms, thoughts and feelings.');
 
   if (trueDiagnosis) {
     parts.push(`Your true diagnosis is ${trueDiagnosis}. Keep this private unless explicitly asked.`);
