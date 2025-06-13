@@ -134,6 +134,7 @@ function updateScoreBar() {
   document.getElementById('score-display').innerText = Math.round(consultationScore);
   const notice = document.getElementById('score-notice');
   if (notice) notice.innerText = '';
+  console.log(`score bar width: ${bar.style.width} color: ${color}`);
 }
 
 async function evaluateConsultation(text) {
@@ -141,26 +142,28 @@ async function evaluateConsultation(text) {
   const notice = document.getElementById('score-notice');
   try {
     const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.`;
-    console.log('evaluateConsultation payload:', text);
+    const payload = {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: prompt },
+        { role: 'user', content: text }
+      ],
+      temperature: 0
+    };
+    console.log('evaluation request payload:', payload);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${key}`
       },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: prompt },
-          { role: 'user', content: text }
-        ],
-        temperature: 0
-      })
+      body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error('OpenAI request failed');
     const data = await response.json();
-    console.log('evaluation response:', data);
     const raw = data.choices[0].message.content.trim();
+    console.log('evaluation raw GPT response:', raw);
+    console.log('evaluation response:', data);
     const m = raw.match(/[-+]?1|0/);
     const val = m ? parseInt(m[0], 10) : NaN;
     console.log('evaluation parsed value:', val);
@@ -190,8 +193,9 @@ async function handleSend() {
   appendMessage('user', text);
   messageHistory.push({ role: 'user', content: text });
   const delta = await evaluateConsultation(text);
+  const before = consultationScore;
   consultationScore = Math.min(100, Math.max(0, consultationScore + delta * 10));
-  console.log('message delta:', delta, 'new consultationScore:', consultationScore);
+  console.log(`consultation score before: ${before} after applying delta ${delta}: ${consultationScore}`);
   updateScoreBar();
   input.value = '';
   turnCount += 1;
