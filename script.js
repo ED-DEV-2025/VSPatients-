@@ -122,15 +122,8 @@ function updateScoreBar() {
   const bar = document.getElementById('score-bar');
   console.log('updateScoreBar - consultationScore:', consultationScore);
   bar.style.width = `${consultationScore}%`;
-  let color = 'red';
-  if (consultationScore >= 75) {
-    color = 'green';
-  } else if (consultationScore >= 50) {
-    color = 'yellow';
-  } else if (consultationScore >= 25) {
-    color = 'orange';
-  }
-  bar.style.background = color;
+  const hue = (consultationScore / 100) * 120; // 0 (red) to 120 (green)
+  bar.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
   document.getElementById('score-display').innerText = Math.round(consultationScore);
   const notice = document.getElementById('score-notice');
   if (notice) notice.innerText = '';
