@@ -20,6 +20,15 @@
   <div id="app-container" class="max-w-4xl mx-auto space-y-6" style="display:none;">
     <h1 class="text-2xl font-bold">Adaptive VSP Builder</h1>
 
+    <!-- Session Manager -->
+    <section class="bg-white p-4 rounded shadow" id="session-manager">
+      <h2 class="text-xl font-semibold mb-2">Saved Sessions</h2>
+      <div class="flex gap-2">
+        <select id="session-select" class="flex-grow border rounded p-2"></select>
+        <button id="load-session-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load</button>
+      </div>
+    </section>
+
     <!-- Case Builder -->
     <section class="bg-white p-4 rounded shadow" id="case-builder">
       <h2 class="text-xl font-semibold mb-2">Patient Case Builder</h2>
