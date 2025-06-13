@@ -338,3 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('app-container').style.display = 'block';
   });
 });
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { buildPrompt, similarity, evaluateConsultation };
+}
