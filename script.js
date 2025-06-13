@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
   continueBtn.addEventListener('click', () => {
     console.log('api-continue handler start');
     const key = keyInput.value.trim();
-    console.log('api key entered:', key);
+    // console.log('api key entered:', key); // Commented out to avoid exposing the API key
     if (!key) {
       alert('Please enter your OpenAI API key.');
       return;
