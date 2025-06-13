@@ -40,6 +40,7 @@ describe('buildPrompt', () => {
     document.getElementById('patient-free').value = 'You are at the clinic for a check-up.';
     const prompt = buildPrompt();
     expect(prompt).toMatch(/Stay in character as the patient/);
+    expect(prompt).toMatch(/Wait for the doctor to ask questions/);
     expect(prompt).toContain('You are at the clinic for a check-up.');
   });
 });

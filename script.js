@@ -153,7 +153,9 @@ function buildPrompt() {
 
   if (free) {
     const patientName = name || 'the patient';
-    return `${free} The user is a medical student interviewing you, ${patientName}. Stay in character as the patient and speak in first person. Do not provide medical advice, do not ask the user questions, and do not address them as ${patientName}.`;
+    const base = `${free} The user is a medical student interviewing you, ${patientName}. Stay in character as the patient and speak in first person. Do not provide medical advice, do not ask the user questions, and do not address them as ${patientName}.`;
+    const rules = ' Do not take the role of a doctor or assistant. Wait for the doctor to ask questions before revealing details. Do not volunteer information or say things like "How can I help you?". Respond only with your own symptoms, thoughts and feelings in a manner consistent with the provided tone and personality. Never offer help or speak as a clinician. Only reply as the patient in first person. Always stay in the patient role. Address the user as doctor and begin the encounter with a brief statement of your main concern before waiting for further questions.';
+    return base + rules;
   }
 
   const patient = name || 'the patient';
