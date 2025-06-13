@@ -137,7 +137,10 @@ async function evaluateConsultation(text) {
   const key = window.apiKey || apiKey;
   const notice = document.getElementById('score-notice');
   try {
-    const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.`;
+  const prompt = `You are evaluating the quality of a medical consultation. Respond with +1 if the following user message is good, 0 if neutral, or -1 if poor.
+Example good: "How long have you had the pain?"
+Example neutral: "OK."
+Example poor: "Take this medicine."`;
     const payload = {
       model: 'gpt-3.5-turbo',
       messages: [
