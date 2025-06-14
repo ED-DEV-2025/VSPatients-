@@ -27,3 +27,20 @@ The application adjusts the consultation score using these fields:
 - `inappropriate_advice` -10 points
 
 The score bar in the UI reflects the running total between 0 and 100.
+
+## Case JSON Format
+
+Scenarios are provided as JSON files. Download [caseTemplate.json](./caseTemplate.json) for a blank template. The application recognizes the following fields:
+
+- `name` (required) – patient name.
+- `age` (required) – patient age.
+- `occupation` – job or role of the patient.
+- `background` – additional context or history.
+- `symptoms` (required) – initial symptoms or presenting complaint.
+- `tone` – short description of the patient's mood.
+- `personality` – extra traits that influence dialogue.
+- `trueDiagnosis` – hidden diagnosis used when checking the trainee's guess.
+- `description` – free form scenario text.
+- `behavior` – how the patient should act during the encounter.
+
+Any field not marked as required is optional and defaults to an empty string if omitted.
