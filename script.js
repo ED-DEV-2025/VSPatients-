@@ -463,10 +463,10 @@ async function startSimulation() {
   }
 
   systemPrompt = buildPrompt();
+  systemPrompt += ' Start by stating the patient\'s main concern in one sentence and do not ask the doctor any questions yet.';
   console.log('built systemPrompt:', systemPrompt);
   messageHistory = [];
   messageHistory.push({ role: 'system', content: systemPrompt });
-  messageHistory.push({ role: 'system', content: 'Start by stating the patient\'s main concern in one sentence and do not ask the doctor any questions yet.' });
   score = 0;
   consultationScore = 50;
   turnCount = 0;
