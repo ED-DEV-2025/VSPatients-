@@ -6,6 +6,31 @@ let score = 0;
 let consultationScore = 50;
 let turnCount = 0;
 let currentSessionId = null;
+let caseData = null;
+
+function loadStoredCase() {
+  if (caseData) return caseData;
+  try {
+    const raw = sessionStorage.getItem('caseJson');
+    if (raw) caseData = JSON.parse(raw);
+  } catch (e) {
+    console.warn('Failed to parse stored case', e);
+    caseData = null;
+  }
+  return caseData;
+}
+
+function loadApiKey() {
+  if (apiKey) return apiKey;
+  try {
+    const k = sessionStorage.getItem('openaiKey');
+    if (k) {
+      apiKey = k;
+      window.apiKey = k;
+    }
+  } catch (e) {}
+  return apiKey;
+}
 
 function getCaseData() {
   return {
@@ -134,22 +159,25 @@ function loadSession(id) {
 }
 
 function buildPrompt() {
-  const name = document.getElementById('patient-name').value.trim();
-  console.log('name:', name);
-  const age = document.getElementById('patient-age').value.trim();
-  console.log('age:', age);
-  const occupation = document.getElementById('patient-occupation').value.trim();
-  console.log('occupation:', occupation);
-  const background = document.getElementById('patient-background').value.trim();
-  console.log('background:', background);
-  const symptoms = document.getElementById('patient-symptoms').value.trim();
-  console.log('symptoms:', symptoms);
-  const tone = document.getElementById('patient-tone').value.trim();
-  console.log('tone:', tone);
-  const free = document.getElementById('patient-free').value.trim();
-  console.log('free text:', free);
-  trueDiagnosis = document.getElementById('patient-diagnosis').value.trim();
-  console.log('diagnosis:', trueDiagnosis);
+  const data = loadStoredCase() || (typeof document !== 'undefined' ? {
+    name: document.getElementById('patient-name')?.value.trim() || '',
+    age: document.getElementById('patient-age')?.value.trim() || '',
+    occupation: document.getElementById('patient-occupation')?.value.trim() || '',
+    background: document.getElementById('patient-background')?.value.trim() || '',
+    symptoms: document.getElementById('patient-symptoms')?.value.trim() || '',
+    tone: document.getElementById('patient-tone')?.value.trim() || '',
+    trueDiagnosis: document.getElementById('patient-diagnosis')?.value.trim() || '',
+    free: document.getElementById('patient-free')?.value.trim() || ''
+  } : {});
+
+  const name = data.name || '';
+  const age = data.age || '';
+  const occupation = data.occupation || '';
+  const background = data.background || '';
+  const symptoms = data.symptoms || '';
+  const tone = data.tone || '';
+  const free = data.free || data.description || '';
+  trueDiagnosis = data.trueDiagnosis || '';
 
   if (free) {
     const patientName = name || 'the patient';
@@ -369,16 +397,22 @@ async function handleSend() {
 
 async function startSimulation() {
   console.log('startSimulation called');
+  loadApiKey();
   if (!apiKey) {
     alert('Please enter your OpenAI API key.');
     return;
   }
+  if (!caseData) caseData = loadStoredCase();
+  if (!caseData && typeof document !== 'undefined' && document.getElementById('patient-name')) {
+    caseData = getCaseData();
+  }
   if (!currentSessionId) {
-    createNewSession(getCaseData());
+    createNewSession(caseData || {});
   }
 
   if (messageHistory.length > 0) {
-    document.getElementById('case-builder').style.display = 'none';
+    const cb = document.getElementById('case-builder');
+    if (cb) cb.style.display = 'none';
     document.getElementById('chat-section').style.display = 'block';
     document.getElementById('info-panels').style.display = 'grid';
     renderHistory(messageHistory);
@@ -396,7 +430,8 @@ async function startSimulation() {
   document.getElementById('score-display').innerText = '50';
   updateScoreBar();
   document.getElementById('diagnosis-display').innerText = '';
-  document.getElementById('case-builder').style.display = 'none';
+  const cb = document.getElementById('case-builder');
+  if (cb) cb.style.display = 'none';
   document.getElementById('chat-section').style.display = 'block';
   document.getElementById('info-panels').style.display = 'grid';
   appendMessage('system', 'Simulation started.');
@@ -467,13 +502,18 @@ async function generateRandomCase() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('start-btn').addEventListener('click', startSimulation);
-  document.getElementById('send-btn').addEventListener('click', handleSend);
+  const startElem = document.getElementById('start-btn');
+  if (startElem) startElem.addEventListener('click', startSimulation);
+  const sendElem = document.getElementById('send-btn');
+  if (sendElem) sendElem.addEventListener('click', handleSend);
   const genBtn = document.getElementById('generate-btn');
   if (genBtn) genBtn.addEventListener('click', generateRandomCase);
-  document.getElementById('chat-input').addEventListener('keypress', e => {
-    if (e.key === 'Enter') handleSend();
-  });
+  const chatInput = document.getElementById('chat-input');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') handleSend();
+    });
+  }
 
   updateSessionSelect();
   const loadBtn = document.getElementById('load-session-btn');
@@ -488,21 +528,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const continueBtn = document.getElementById('api-continue');
   const keyInput = document.getElementById('api-key-input');
 
-  continueBtn.addEventListener('click', () => {
-    console.log('api-continue handler start');
-    const key = keyInput.value.trim();
-    // console.log('api key entered:', key); // Commented out to avoid exposing the API key
-    if (!key) {
-      alert('Please enter your OpenAI API key.');
-      return;
-    }
-    apiKey = key;
-    window.apiKey = key;
-    console.log('apiKey set on window');
-    modal.style.display = 'none';
-    console.log('api modal hidden');
-    document.getElementById('app-container').style.display = 'block';
-  });
+  const stored = sessionStorage.getItem('openaiKey');
+  if (stored) {
+    apiKey = stored;
+    window.apiKey = stored;
+    if (modal) modal.style.display = 'none';
+    const app = document.getElementById('app-container');
+    if (app) app.style.display = 'block';
+  } else if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      const key = keyInput.value.trim();
+      if (!key) {
+        alert('Please enter your OpenAI API key.');
+        return;
+      }
+      apiKey = key;
+      window.apiKey = key;
+      sessionStorage.setItem('openaiKey', key);
+      if (modal) modal.style.display = 'none';
+      const app = document.getElementById('app-container');
+      if (app) app.style.display = 'block';
+    });
+  }
 });
 
 if (typeof module !== "undefined" && module.exports) {
