@@ -157,6 +157,10 @@ function loadSession(id) {
   score = session.score || 0;
   consultationScore = session.consultationScore || 50;
   turnCount = session.turnCount || 0;
+  const input = document.getElementById('chat-input');
+  const send = document.getElementById('send-btn');
+  if (input) input.disabled = false;
+  if (send) send.disabled = false;
   if (messageHistory.length > 0) {
     document.getElementById('chat-section').style.display = 'block';
     document.getElementById('info-panels').style.display = 'grid';
@@ -454,6 +458,11 @@ async function startSimulation() {
   if (!currentSessionId) {
     createNewSession(caseData || {});
   }
+
+  const input = document.getElementById('chat-input');
+  const send = document.getElementById('send-btn');
+  if (input) input.disabled = false;
+  if (send) send.disabled = false;
 
   if (messageHistory.length > 0) {
     const cb = document.getElementById('case-builder');
