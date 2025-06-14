@@ -510,8 +510,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (genBtn) genBtn.addEventListener('click', generateRandomCase);
   const chatInput = document.getElementById('chat-input');
   if (chatInput) {
-    chatInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') handleSend();
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSend();
+      }
     });
   }
 
