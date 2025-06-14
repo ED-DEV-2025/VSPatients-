@@ -419,6 +419,8 @@ async function handleSend() {
     appendMessage('assistant', reply);
     messageHistory.push({ role: 'assistant', content: reply });
     saveCurrentSession();
+  } else {
+    appendMessage('system', '(No response from OpenAI)');
   }
 
   if (turnCount % 5 === 0) {
@@ -485,6 +487,8 @@ async function startSimulation() {
   if (firstReply) {
     appendMessage('assistant', firstReply);
     messageHistory.push({ role: 'assistant', content: firstReply });
+  } else {
+    appendMessage('system', '(No response from OpenAI)');
   }
   saveCurrentSession();
 }
