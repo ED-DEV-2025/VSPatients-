@@ -51,3 +51,17 @@ Both the patient responses and the random case generator use a very low
 `temperature` value (0.1) when calling the OpenAI API. This minimizes
 randomness so running the same scenario multiple times yields consistent
 dialogue and makes troubleshooting easier.
+
+## Development
+
+Install dependencies with:
+
+```bash
+npm install
+```
+
+Run tests with:
+
+```bash
+npm test
+```
