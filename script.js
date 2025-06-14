@@ -338,7 +338,11 @@ async function handleSend() {
   turnCount += 1;
 
   console.log('sending to OpenAI. systemPrompt:', systemPrompt);
-  const reply = await callOpenAI(messageHistory);
+  const messages = [{ role: 'system', content: systemPrompt }, ...messageHistory];
+  if (/you are the doctor|switch roles/i.test(text)) {
+    messages.push({ role: 'system', content: 'Stay in the patient role at all times.' });
+  }
+  const reply = await callOpenAI(messages);
   if (reply) {
     appendMessage('assistant', reply);
     messageHistory.push({ role: 'assistant', content: reply });
@@ -501,5 +505,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { buildPrompt, similarity, evaluateConsultation };
+  module.exports = {
+    buildPrompt,
+    similarity,
+    evaluateConsultation,
+    handleSend,
+    callOpenAI,
+    _setTestState: state => {
+      if (state.systemPrompt !== undefined) systemPrompt = state.systemPrompt;
+      if (state.messageHistory !== undefined) messageHistory = state.messageHistory;
+      if (state.consultationScore !== undefined) consultationScore = state.consultationScore;
+      if (state.turnCount !== undefined) turnCount = state.turnCount;
+      if (state.trueDiagnosis !== undefined) trueDiagnosis = state.trueDiagnosis;
+    }
+  };
 }
