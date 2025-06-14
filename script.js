@@ -338,7 +338,7 @@ async function handleSend() {
   turnCount += 1;
 
   console.log('sending to OpenAI. systemPrompt:', systemPrompt);
-  const messages = [{ role: 'system', content: systemPrompt }, ...messageHistory];
+  const messages = [...messageHistory];
   if (/you are the doctor|switch roles/i.test(text)) {
     messages.push({ role: 'system', content: 'Stay in the patient role at all times.' });
   }
