@@ -424,6 +424,7 @@ async function startSimulation() {
   console.log('built systemPrompt:', systemPrompt);
   messageHistory = [];
   messageHistory.push({ role: 'system', content: systemPrompt });
+  messageHistory.push({ role: 'system', content: 'Start by stating the patient\'s main concern in one sentence and do not ask the doctor any questions yet.' });
   score = 0;
   consultationScore = 50;
   turnCount = 0;
@@ -435,7 +436,7 @@ async function startSimulation() {
   document.getElementById('chat-section').style.display = 'block';
   document.getElementById('info-panels').style.display = 'grid';
   appendMessage('system', 'Simulation started.');
-  const intro = 'Begin the consultation.';
+  const intro = 'Begin the consultation by briefly stating your main concern. Do not ask the doctor any questions yet.';
   messageHistory.push({ role: 'user', content: intro });
   const firstReply = await callOpenAI(messageHistory);
   if (firstReply) {
