@@ -9,8 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
-  ,
+  "type": "commonjs",
   "devDependencies": {
     "jest": "^29.0.0",
     "jsdom": "^22.0.0"
