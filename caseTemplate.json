@@ -6,7 +6,9 @@
   "symptoms": "",
   "tone": "",
   "personality": "",
+  "medicalHistory": "",
+  "culturalNotes": "",
   "trueDiagnosis": "",
   "description": "",
-  "behavior": "Remain in the patient role. Respond in first person and wait for the clinician to ask questions."
+  "baseBehavior": "Remain in the patient role. Respond in first person and wait for the clinician to ask questions."
 }
