@@ -276,7 +276,8 @@ async function callOpenAI(messages) {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages,
-        temperature: 0.7
+        // Use a near-zero temperature so patient replies are deterministic
+        temperature: 0.1
       })
     });
 
@@ -514,7 +515,8 @@ async function generateRandomCase() {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7
+        // Keep case generation consistent across runs
+        temperature: 0.1
       })
     });
 

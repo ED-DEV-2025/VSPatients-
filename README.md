@@ -44,3 +44,10 @@ Scenarios are provided as JSON files. Download [caseTemplate.json](./caseTemplat
 - `behavior` – how the patient should act during the encounter.
 
 Any field not marked as required is optional and defaults to an empty string if omitted.
+
+## Deterministic Output
+
+Both the patient responses and the random case generator use a very low
+`temperature` value (0.1) when calling the OpenAI API. This minimizes
+randomness so running the same scenario multiple times yields consistent
+dialogue and makes troubleshooting easier.
