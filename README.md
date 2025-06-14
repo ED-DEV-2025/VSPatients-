@@ -44,3 +44,13 @@ Scenarios are provided as JSON files. Download [caseTemplate.json](./caseTemplat
 - `behavior` – how the patient should act during the encounter.
 
 Any field not marked as required is optional and defaults to an empty string if omitted.
+
+## Testing
+
+Jest is used for unit tests. Run `npm install` to install dependencies before executing the tests:
+
+```bash
+npm install
+```
+
+The `pretest` script checks whether Jest is available and reminds you to install it if necessary.
